@@ -1,0 +1,297 @@
+{% extends 'base/base.html' %}
+{% load hospital_filters %}
+
+{% block title %}Search Results - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">
+                <i class="fas fa-search me-2"></i>
+                Search Results
+            </h1>
+            {% if query %}
+                <p class="text-muted">
+                    Found <strong>{{ total_results }}</strong> hospital{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
+                </p>
+            {% else %}
+                <p class="text-muted">Showing all available hospitals</p>
+            {% endif %}
+        </div>
+        <div class="col-auto d-flex align-items-center">
+            <a href="{% url 'hospitals:hospital_list' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-hospital me-1"></i> All Hospitals
+            </a>
+            <a href="{% url 'hospitals:nearby_hospitals' %}" class="btn btn-primary">
+                <i class="fas fa-map-marker-alt me-1"></i> Nearby
+            </a>
+        </div>
+    </div>
+
+    <!-- Advanced Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Advanced Search & Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{% url 'hospitals:search_hospitals' %}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="q" class="form-label">Search Query</label>
+                                <input type="text" class="form-control" id="q" name="q" 
+                                       value="{{ query }}" placeholder="Hospital name, specialty, location...">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sort" class="form-label">Sort By</label>
+                                <select class="form-select" id="sort" name="sort">
+                                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Name A-Z</option>
+                                    <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>Name Z-A</option>
+                                    <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Rating Low-High</option>
+                                    <option value="rating_desc" {% if request.GET.sort == 'rating_desc' %}selected{% endif %}>Rating High-Low</option>
+                                    <option value="reviews" {% if request.GET.sort == 'reviews' %}selected{% endif %}>Reviews Low-High</option>
+                                    <option value="reviews_desc" {% if request.GET.sort == 'reviews_desc' %}selected{% endif %}>Reviews High-Low</option>
+                                    <option value="doctors" {% if request.GET.sort == 'doctors' %}selected{% endif %}>Doctors Low-High</option>
+                                    <option value="doctors_desc" {% if request.GET.sort == 'doctors_desc' %}selected{% endif %}>Doctors High-Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">All Categories</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category }}" 
+                                                {% if category == selected_category %}selected{% endif %}>
+                                            {{ category }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="state" class="form-label">State</label>
+                                <select class="form-select" id="state" name="state">
+                                    <option value="">All States</option>
+                                    {% for state in states %}
+                                        <option value="{{ state }}" 
+                                                {% if state == selected_state %}selected{% endif %}>
+                                            {{ state }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="specialty" class="form-label">Specialty</label>
+                                <input type="text" class="form-control" id="specialty" name="specialty" 
+                                       value="{{ selected_specialty }}" placeholder="e.g., Cardiology">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-1"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row g-4">
+        {% if hospitals %}
+            {% for hospital in hospitals %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="position-relative">
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                            {% if hospital.gallery.first %}
+                                <img src="{{ hospital.gallery.first.image.url }}" alt="{{ hospital.hospital_name }}" 
+                                     class="img-fluid" style="height: 100%; object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-hospital fa-3x text-primary"></i>
+                            {% endif %}
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i> Verified
+                            </span>
+                        </div>
+                        {% if hospital.unique_hospital_id %}
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-info">
+                                <i class="fas fa-id-card me-1"></i> {{ hospital.unique_hospital_id }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">{{ hospital.hospital_name }}</h5>
+                        
+                        {% if hospital.hospital_category %}
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-tag me-1"></i> {{ hospital.hospital_category }}
+                        </p>
+                        {% endif %}
+                        
+                        <p class="card-text mb-3">
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            {{ hospital.user.profile.address|default:"Address not available" }}
+                        </p>
+                        
+                        {% if hospital.specialties %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-stethoscope me-1"></i>
+                                <strong>Specialties:</strong> {{ hospital.specialties|truncatechars:100 }}
+                            </small>
+                        </div>
+                        {% endif %}
+                        
+                        {% if hospital.facilities %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-medical-kit me-1"></i>
+                                <strong>Facilities:</strong> {{ hospital.facilities|truncatechars:80 }}
+                            </small>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row text-center mb-3">
+                            {% if hospital.total_beds > 0 %}
+                            <div class="col-4">
+                                <div class="border-end">
+                                    <div class="fw-bold text-primary">{{ hospital.total_beds }}</div>
+                                    <small class="text-muted">Beds</small>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if hospital.number_doctors > 0 %}
+                            <div class="col-4">
+                                <div class="border-end">
+                                    <div class="fw-bold text-success">{{ hospital.number_doctors }}</div>
+                                    <small class="text-muted">Doctors</small>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if hospital.avg_rating %}
+                            <div class="col-4">
+                                <div class="fw-bold text-warning">{{ hospital.avg_rating|floatformat:1 }}</div>
+                                <small class="text-muted">Rating</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if hospital.emergency_contact %}
+                        <div class="mb-2">
+                            <i class="fas fa-phone text-danger me-2"></i>
+                            <span class="small">{{ hospital.emergency_contact }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if hospital.ambulance_number %}
+                        <div class="mb-2">
+                            <i class="fas fa-ambulance text-danger me-2"></i>
+                            <span class="small">{{ hospital.ambulance_number }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if hospital.bloodbank_phone %}
+                        <div class="mb-2">
+                            <i class="fas fa-tint text-danger me-2"></i>
+                            <span class="small">Blood Bank: {{ hospital.bloodbank_phone }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if hospital.established_year %}
+                        <div class="mb-2">
+                            <i class="fas fa-calendar-alt text-muted me-2"></i>
+                            <span class="small">Est. {{ hospital.established_year }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer bg-white border-0 pt-0">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'hospitals:hospital_detail' hospital.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i> View Details
+                            </a>
+                            {% if hospital.website %}
+                            <a href="{{ hospital.website }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i> Visit Website
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>No hospitals found</h4>
+                    <p class="text-muted">
+                        {% if query %}
+                            No hospitals match your search criteria "{{ query }}". 
+                            Try adjusting your search terms or filters.
+                        {% else %}
+                            No hospitals are currently available. Please check back later.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'hospitals:hospital_list' %}" class="btn btn-primary">
+                        <i class="fas fa-hospital me-1"></i> View All Hospitals
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if hospitals.has_other_pages %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <nav aria-label="Search results pagination">
+                <ul class="pagination justify-content-center">
+                    {% if hospitals.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_state %}state={{ selected_state }}&{% endif %}{% if selected_specialty %}specialty={{ selected_specialty }}&{% endif %}page={{ hospitals.previous_page_number }}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in hospitals.paginator.page_range %}
+                        {% if hospitals.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > hospitals.number|add:'-3' and num < hospitals.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_state %}state={{ selected_state }}&{% endif %}{% if selected_specialty %}specialty={{ selected_specialty }}&{% endif %}page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if hospitals.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_state %}state={{ selected_state }}&{% endif %}{% if selected_specialty %}specialty={{ selected_specialty }}&{% endif %}page={{ hospitals.next_page_number }}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

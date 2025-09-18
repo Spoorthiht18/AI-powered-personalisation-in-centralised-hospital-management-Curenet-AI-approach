@@ -1,0 +1,80 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ hospital.hospital_name }} - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-2">
+                <i class="fas fa-hospital me-2"></i>
+                {{ hospital.hospital_name }}
+            </h1>
+            <p class="text-muted">{{ hospital.description|default:"No description available." }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Hospital Details</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Registration Number:</strong> {{ hospital.registration_number }}</li>
+                        <li class="list-group-item"><strong>Established Year:</strong> {{ hospital.established_year|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Address:</strong> {{ hospital.user.profile.address|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Phone:</strong> {{ hospital.user.phone_number|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Email:</strong> {{ hospital.user.email|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Website:</strong> {% if hospital.website %}<a href="{{ hospital.website }}" target="_blank">{{ hospital.website }}</a>{% else %}N/A{% endif %}</li>
+                        <li class="list-group-item"><strong>Emergency Contact:</strong> {{ hospital.emergency_contact|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Ambulance Number:</strong> {{ hospital.ambulance_number|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Facilities:</strong> {{ hospital.facilities|default:"N/A" }}</li>
+                        <li class="list-group-item"><strong>Registration Certificate:</strong>
+                            {% if hospital.registration_certificate %}
+                                <a href="{{ hospital.registration_certificate.url }}" target="_blank">View Certificate</a>
+                            {% else %}
+                                <span class="text-muted">No registration certificate uploaded.</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Doctors ({{ doctors|length }})</h5>
+                    {% if doctors %}
+                        <ul class="list-group list-group-flush">
+                            {% for doctor in doctors %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'hospitals:doctor_detail' doctor.id %}">Dr. {{ doctor.name }}</a>
+                                    <br><small>{{ doctor.qualification }}</small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted">No doctors listed for this hospital.</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">Ratings & Reviews ({{ ratings|length }})</h5>
+                    {% if ratings %}
+                        <ul class="list-group list-group-flush">
+                            {% for rating in ratings %}
+                                <li class="list-group-item">
+                                    <strong>{{ rating.user.phone_number }}</strong>: {{ rating.rating }} stars
+                                    <br>{{ rating.review|default:"No review text." }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted">No ratings yet.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

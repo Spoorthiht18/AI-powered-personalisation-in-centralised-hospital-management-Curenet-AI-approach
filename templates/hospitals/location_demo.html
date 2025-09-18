@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Location Demo - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-location-arrow me-2"></i>
+                        Location Access Demo
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                        <h5>Test Your Location Access</h5>
+                        <p class="text-muted">This page will help you test if location access is working properly.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Current Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="locationStatus">
+                                        <p class="text-muted">Click "Get Location" to start</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Coordinates</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="coordinates">
+                                        <p class="text-muted">No coordinates yet</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-lg me-3" onclick="getLocation()">
+                            <i class="fas fa-location-arrow me-2"></i>
+                            Get Location
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="clearLocation()">
+                            <i class="fas fa-eraser me-2"></i>
+                            Clear
+                        </button>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>How it works:</h6>
+                            <ol class="mb-0">
+                                <li>Click "Get Location" button</li>
+                                <li>Allow location access when prompted</li>
+                                <li>View your coordinates</li>
+                                <li>Test the nearby hospitals feature</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'hospitals:nearby_hospitals' %}" class="btn btn-success">
+                            <i class="fas fa-hospital me-2"></i>
+                            Go to Nearby Hospitals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getLocation() {
+    const statusDiv = document.getElementById('locationStatus');
+    const coordsDiv = document.getElementById('coordinates');
+    
+    if (navigator.geolocation) {
+        statusDiv.innerHTML = '<div class="text-warning"><i class="fas fa-spinner fa-spin me-2"></i>Getting location...</div>';
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+                
+                statusDiv.innerHTML = '<div class="text-success"><i class="fas fa-check-circle me-2"></i>Location found!</div>';
+                coordsDiv.innerHTML = `
+                    <p><strong>Latitude:</strong> ${lat.toFixed(6)}</p>
+                    <p><strong>Longitude:</strong> ${lon.toFixed(6)}</p>
+                    <p><strong>Accuracy:</strong> ${accuracy.toFixed(1)} meters</p>
+                    <p><strong>Timestamp:</strong> ${new Date(position.timestamp).toLocaleString()}</p>
+                `;
+                
+                // Store in sessionStorage for other pages
+                sessionStorage.setItem('userLatitude', lat);
+                sessionStorage.setItem('userLongitude', lon);
+                
+                console.log('Location stored:', { lat, lon, accuracy });
+            },
+            function(error) {
+                let errorMessage = 'Unable to get your location.';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location access was denied. Please allow location access and try again.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information is unavailable. Please check your device settings.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Location request timed out. Please try again.';
+                        break;
+                }
+                
+                statusDiv.innerHTML = `<div class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>${errorMessage}</div>`;
+                coordsDiv.innerHTML = '<p class="text-muted">No coordinates available</p>';
+                
+                console.error('Location error:', error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000 // 5 minutes
+            }
+        );
+    } else {
+        statusDiv.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Geolocation is not supported by this browser.</div>';
+    }
+}
+
+function clearLocation() {
+    document.getElementById('locationStatus').innerHTML = '<p class="text-muted">Click "Get Location" to start</p>';
+    document.getElementById('coordinates').innerHTML = '<p class="text-muted">No coordinates yet</p>';
+    sessionStorage.removeItem('userLatitude');
+    sessionStorage.removeItem('userLongitude');
+}
+
+// Check if we already have location stored
+document.addEventListener('DOMContentLoaded', function() {
+    const lat = sessionStorage.getItem('userLatitude');
+    const lon = sessionStorage.getItem('userLongitude');
+    
+    if (lat && lon) {
+        document.getElementById('locationStatus').innerHTML = '<div class="text-success"><i class="fas fa-check-circle me-2"></i>Location already available!</div>';
+        document.getElementById('coordinates').innerHTML = `
+            <p><strong>Latitude:</strong> ${parseFloat(lat).toFixed(6)}</p>
+            <p><strong>Longitude:</strong> ${parseFloat(lon).toFixed(6)}</p>
+            <p><strong>Source:</strong> Previously stored</p>
+        `;
+    }
+});
+</script>
+{% endblock %}

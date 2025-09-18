@@ -1,0 +1,21 @@
+# Django Settings
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database
+DATABASE_URL=sqlite:///db.sqlite3
+
+# Twilio SMS Configuration
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=+1234567890
+
+# AI Model Configuration
+AI_MODEL_API_KEY=your-ai-model-api-key
+AI_MODEL_ENDPOINT=https://api.openai.com/v1
+
+# Advanced AI Provider Configuration
+OPENAI_API_KEY=your-openai-api-key-here
+GEMINI_API_KEY=your-gemini-api-key-here
+DEFAULT_AI_PROVIDER=auto

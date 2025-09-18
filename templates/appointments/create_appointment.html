@@ -1,0 +1,215 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Book Appointment with Dr. {{ doctor.name }} - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Breadcrumb -->
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:doctor_list' %}">Doctors</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:doctor_detail' doctor.id %}">Dr. {{ doctor.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Book Appointment</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Book an Appointment</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Appointment Type -->
+                        <div class="mb-4">
+                            <label class="form-label">Appointment Type</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="appointment_type" id="physical_visit" value="PHYSICAL" checked>
+                                    <label class="form-check-label" for="physical_visit">
+                                        Physical Visit
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="appointment_type" id="video_consultation" value="VIDEO">
+                                    <label class="form-check-label" for="video_consultation">
+                                        Video Consultation
+                                    </label>
+                                </div>
+                                {% if doctor.does_home_visit %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="appointment_type" id="home_visit" value="HOME">
+                                    <label class="form-check-label" for="home_visit">
+                                        Home Visit
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Date and Time -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="appointment_date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="appointment_date" name="date" required>
+                                <div class="invalid-feedback">
+                                    Please select a date.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="appointment_time" class="form-label">Time</label>
+                                <input type="time" class="form-control" id="appointment_time" name="time" required>
+                                <div class="invalid-feedback">
+                                    Please select a time.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reason -->
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">Reason for Visit</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" placeholder="Please describe your symptoms or reason for the visit"></textarea>
+                        </div>
+                        
+                        <!-- Home Visit Address (Hidden by default) -->
+                        <div id="home_visit_fields" class="mb-4 d-none">
+                            <label for="address" class="form-label">Home Visit Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your complete address for home visit"></textarea>
+                            
+                            <!-- Location -->
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-primary get-location-btn">
+                                    <i class="fas fa-location-dot me-2"></i>
+                                    Get location
+                                </button>
+                                <input type="hidden" name="latitude" id="latitude">
+                                <input type="hidden" name="longitude" id="longitude">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Book Appointment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Doctor Info Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Doctor Information</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if doctor.photo %}
+                            <img src="{{ doctor.photo.url }}" alt="Dr. {{ doctor.name }}" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-user-md fa-2x text-primary"></i>
+                            </div>
+                        {% endif %}
+                        <div class="ms-3">
+                            <h6 class="mb-1">Dr. {{ doctor.name }}</h6>
+                            <p class="mb-0 text-muted">{{ doctor.specializations.all|join:", " }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-2">Available Days</h6>
+                        <p class="mb-0">{{ available_days|join:", " }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-2">Timings</h6>
+                        <p class="mb-0">{{ available_from|time:"g:i A" }} - {{ available_to|time:"g:i A" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-2">Consultation Fee</h6>
+                        <p class="mb-0">${{ doctor.consultation_fee }}</p>
+                    </div>
+                    
+                    {% if doctor.does_home_visit %}
+                    <div class="mb-3">
+                        <h6 class="mb-2">Home Visit Fee</h6>
+                        <p class="mb-0">${{ doctor.home_visit_fee }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h6 class="mb-2">Hospital</h6>
+                        <p class="mb-0">{{ doctor.hospital.hospital_name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const appointmentTypeInputs = document.querySelectorAll('input[name="appointment_type"]');
+    const homeVisitFields = document.getElementById('home_visit_fields');
+    
+    // Show/hide home visit fields based on appointment type
+    appointmentTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value === 'HOME') {
+                homeVisitFields.classList.remove('d-none');
+            } else {
+                homeVisitFields.classList.add('d-none');
+            }
+        });
+    });
+    
+    // Date input validation
+    const dateInput = document.getElementById('appointment_date');
+    const timeInput = document.getElementById('appointment_time');
+    
+    // Set min date to today
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    dateInput.min = yyyy + '-' + mm + '-' + dd;
+    
+    // Validate selected date is a working day
+    const availableDays = {{ available_days|safe }};
+    dateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const dayName = selectedDate.toLocaleString('en-us', {weekday: 'long'});
+        
+        if (!availableDays.includes(dayName)) {
+            this.setCustomValidity(`Dr. ${doctor.name} is not available on ${dayName}s`);
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Validate selected time is within working hours
+    const availableFrom = '{{ available_from|time:"H:i" }}';
+    const availableTo = '{{ available_to|time:"H:i" }}';
+    
+    timeInput.addEventListener('change', function() {
+        if (this.value < availableFrom || this.value > availableTo) {
+            this.setCustomValidity(`Please select a time between ${availableFrom} and ${availableTo}`);
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %}

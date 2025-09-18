@@ -1,0 +1,3 @@
+hospital_registration_number,name,qualification,specializations,experience_years,consultation_fee,is_available,does_home_visit,home_visit_fee,available_days,available_from,available_to,bio,photo
+REG123456,Dr. Ravi Kumar,MBBS,General Medicine,10,500,True,False,,Monday,Tuesday,Friday,09:00,17:00,"Experienced general physician.",
+REG654321,Dr. Meena Patil,MS (Obs & Gyn),Gynecology,16,700,True,True,1000,Monday,Wednesday,Saturday,10:00,16:00,"Senior gynecologist with 16 years experience.", 

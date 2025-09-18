@@ -1,0 +1,506 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dr. {{ doctor.name }} - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Breadcrumb -->
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:hospital_list' %}">Hospitals</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:doctor_list' %}">Doctors</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dr. {{ doctor.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Doctor Profile -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            {% if doctor.photo %}
+                                <img src="{{ doctor.photo.url }}" alt="Dr. {{ doctor.name }}" class="img-fluid rounded">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 240px;">
+                                    <i class="fas fa-user-md fa-5x text-primary"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h2 class="mb-1">Dr. {{ doctor.name }}</h2>
+                            
+                            <div class="d-flex flex-wrap align-items-center mb-3">
+                                <div class="d-flex text-warning me-2">
+                                    <i class="fas fa-star me-1"></i>
+                                    <span class="fw-bold text-dark">{{ doctor.average_rating|default:"New" }}</span>
+                                </div>
+                                <span class="text-muted small">({{ doctor.ratings.count }} reviews)</span>
+                                
+                                <div class="ms-auto">
+                                    <span class="badge bg-{{ doctor.is_available|yesno:"success,danger" }} py-2 px-3">
+                                        <i class="fas fa-{{ doctor.is_available|yesno:"check-circle,times-circle" }} me-1"></i>
+                                        {{ doctor.is_available|yesno:"Available,Not Available" }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <span class="d-block mb-2">
+                                    <i class="fas fa-hospital text-primary me-2"></i>
+                                    {{ doctor.hospital.hospital_name }}
+                                </span>
+                                <span class="d-block mb-2">
+                                    <i class="fas fa-stethoscope text-primary me-2"></i>
+                                    {% for specialization in doctor.specializations.all %}
+                                        {% if not forloop.first %}, {% endif %}
+                                        {{ specialization.name }}
+                                    {% endfor %}
+                                </span>
+                                <span class="d-block mb-2">
+                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                    {{ doctor.qualification }}
+                                </span>
+                                <span class="d-block">
+                                    <i class="fas fa-briefcase text-primary me-2"></i>
+                                    {{ doctor.experience_years }} years experience
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="#appointment" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>
+                                    Book Appointment
+                                </a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#contactModal">
+                                    <i class="fas fa-phone-alt me-2"></i>
+                                    Contact
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Doctor Bio and Information -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <ul class="nav nav-tabs card-header-tabs" id="doctorTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="false">Schedule</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-4">
+                    <div class="tab-content" id="doctorTabContent">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                            <h5 class="mb-3">About Dr. {{ doctor.name }}</h5>
+                            
+                            {% if doctor.bio %}
+                                <p>{{ doctor.bio }}</p>
+                            {% else %}
+                                <p>No biography information available for this doctor.</p>
+                            {% endif %}
+                            
+                            <h5 class="mt-4 mb-3">Additional Information</h5>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary p-3 text-white">
+                                                    <i class="fas fa-coins"></i>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h6 class="mb-1">Consultation Fee</h6>
+                                                    <p class="mb-0">${{ doctor.consultation_fee }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mt-3 mt-md-0">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary p-3 text-white">
+                                                    <i class="fas fa-home"></i>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h6 class="mb-1">Home Visit</h6>
+                                                    <p class="mb-0">{{ doctor.does_home_visit|yesno:"Available,Not Available" }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reviews Tab -->
+                        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0">Patient Reviews</h5>
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                    <i class="fas fa-star me-1"></i>
+                                    Write a Review
+                                </button>
+                            </div>
+                            
+                            {% if doctor.ratings.exists %}
+                                {% for rating in doctor.ratings.all %}
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="text-warning me-2">
+                                                        {% for i in "12345" %}
+                                                            {% if i|add:"0" <= rating.rating %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <span class="fw-bold">{{ rating.rating }}/5</span>
+                                                </div>
+                                                <div class="text-muted small">{{ rating.created_at|date:"F j, Y" }}</div>
+                                            </div>
+                                            
+                                            <h6 class="fw-bold mb-2">{{ rating.user.profile.full_name|default:"Anonymous User" }}</h6>
+                                            
+                                            {% if rating.review %}
+                                                <p class="mb-0">{{ rating.review }}</p>
+                                            {% else %}
+                                                <p class="mb-0 text-muted fst-italic">No comments provided.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-star-half-alt fa-3x text-muted mb-3"></i>
+                                    <h6>No Reviews Yet</h6>
+                                    <p class="text-muted mb-3">Be the first to review Dr. {{ doctor.name }}</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                        Write a Review
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Schedule Tab -->
+                        <div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+                            <h5 class="mb-4">Availability Schedule</h5>
+                            
+                            {% if doctor.available_days %}
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="mb-3">Available Days</h6>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    {% for day in doctor.get_available_days_list %}
+                                                        <span class="badge bg-primary py-2 px-3">{{ day }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body py-3">
+                                                <h6 class="mb-1">Time From</h6>
+                                                <p class="mb-0">{{ doctor.available_from|time:"g:i A" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mt-3 mt-md-0">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body py-3">
+                                                <h6 class="mb-1">Time To</h6>
+                                                <p class="mb-0">{{ doctor.available_to|time:"g:i A" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Schedule information not available. Please contact the hospital for appointment details.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appointment Booking Section -->
+            <div id="appointment" class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">Book an Appointment</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="appointment_date" class="form-label">Appointment Date</label>
+                                <input type="date" id="appointment_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="appointment_time" class="form-label">Preferred Time</label>
+                                <input type="time" id="appointment_time" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="appointment_type" class="form-label">Appointment Type</label>
+                            <select id="appointment_type" class="form-select" required>
+                                <option value="" selected disabled>Select type</option>
+                                <option value="Consultation">Regular Consultation</option>
+                                <option value="Follow-up">Follow-up Visit</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="appointment_notes" class="form-label">Notes or Symptoms (Optional)</label>
+                            <textarea id="appointment_notes" class="form-control" rows="3" placeholder="Briefly describe your symptoms or reason for visit..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Confirm Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Hospital Info -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Hospital Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            {% if doctor.hospital.profile_picture %}
+                                <img src="{{ doctor.hospital.profile_picture.url }}" alt="{{ doctor.hospital.hospital_name }}" class="rounded" width="64" height="64">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                                    <i class="fas fa-hospital fa-2x text-primary"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">{{ doctor.hospital.hospital_name }}</h6>
+                            <div class="d-flex text-warning small">
+                                <i class="fas fa-star me-1"></i>
+                                <span>{{ doctor.hospital.average_rating|default:"New" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                        {{ doctor.hospital.user.profile.address|default:"Address not available" }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <i class="fas fa-phone-alt text-primary me-2"></i>
+                        {{ doctor.hospital.user.phone_number }}
+                    </div>
+                    
+                    {% if doctor.hospital.website %}
+                        <div class="mb-3">
+                            <i class="fas fa-globe text-primary me-2"></i>
+                            <a href="{{ doctor.hospital.website }}" target="_blank">{{ doctor.hospital.website }}</a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{% url 'hospitals:hospital_detail' doctor.hospital.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-hospital-alt me-2"></i>
+                            View Hospital
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Similar Doctors -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Similar Doctors</h5>
+                </div>
+                <div class="card-body">
+                    <!-- This would show similar doctors in a real app -->
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-md fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Similar doctors will be shown here based on specialization and location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Contact -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">Contact Dr. {{ doctor.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-4">You can reach Dr. {{ doctor.name }} through the following contact methods:</p>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle bg-primary p-2 text-white me-3">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">Phone</h6>
+                        <p class="mb-0">{{ doctor.hospital.user.phone_number }}</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary p-2 text-white me-3">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">Hospital</h6>
+                        <p class="mb-0">{{ doctor.hospital.hospital_name }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'appointments:create_appointment' doctor.id %}" class="btn btn-primary">Book Appointment</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Review -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Rate Dr. {{ doctor.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" method="post" action="{% url 'hospitals:rate_doctor' doctor.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Your Rating</label>
+                        <div class="rating-stars d-flex gap-2">
+                            <input type="radio" id="star5" name="rating" value="5" class="d-none">
+                            <label for="star5" class="fs-3 text-muted"><i class="far fa-star"></i></label>
+                            
+                            <input type="radio" id="star4" name="rating" value="4" class="d-none">
+                            <label for="star4" class="fs-3 text-muted"><i class="far fa-star"></i></label>
+                            
+                            <input type="radio" id="star3" name="rating" value="3" class="d-none" checked>
+                            <label for="star3" class="fs-3 text-muted"><i class="far fa-star"></i></label>
+                            
+                            <input type="radio" id="star2" name="rating" value="2" class="d-none">
+                            <label for="star2" class="fs-3 text-muted"><i class="far fa-star"></i></label>
+                            
+                            <input type="radio" id="star1" name="rating" value="1" class="d-none">
+                            <label for="star1" class="fs-3 text-muted"><i class="far fa-star"></i></label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="review" class="form-label">Your Review (Optional)</label>
+                        <textarea id="review" name="review" class="form-control" rows="4" placeholder="Share your experience with this doctor..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="reviewForm" class="btn btn-primary">Submit Review</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Star rating functionality
+        const ratingStars = document.querySelectorAll('.rating-stars label');
+        const ratingInputs = document.querySelectorAll('.rating-stars input');
+        
+        // Set initial stars based on checked input
+        updateStars();
+        
+        // Add click event to all star labels
+        ratingStars.forEach(star => {
+            star.addEventListener('click', function() {
+                // Find the corresponding input and set it as checked
+                const input = document.getElementById(this.getAttribute('for'));
+                input.checked = true;
+                
+                // Update star appearance
+                updateStars();
+            });
+        });
+        
+        function updateStars() {
+            // Find which star is selected
+            let selectedValue = 0;
+            ratingInputs.forEach(input => {
+                if (input.checked) {
+                    selectedValue = parseInt(input.value);
+                }
+            });
+            
+            // Update star appearance
+            ratingStars.forEach((star, index) => {
+                const starValue = 5 - index;
+                if (starValue <= selectedValue) {
+                    // Filled star
+                    star.innerHTML = '<i class="fas fa-star"></i>';
+                    star.classList.remove('text-muted');
+                    star.classList.add('text-warning');
+                } else {
+                    // Empty star
+                    star.innerHTML = '<i class="far fa-star"></i>';
+                    star.classList.remove('text-warning');
+                    star.classList.add('text-muted');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

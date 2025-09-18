@@ -1,0 +1,456 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Medicine Search - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">
+                <i class="fas fa-pills me-2"></i>
+                Medicine Information
+            </h1>
+            <p class="text-muted">Search for medicines to learn about their uses, side effects, and interactions</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" action="{% url 'chatbot:search_medicines' %}" class="row g-3">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control form-control-lg" name="query" placeholder="Search for a medicine (e.g., paracetamol, aspirin, etc.)" value="{{ query|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if query %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Search Results for "{{ query }}"</h5>
+        </div>
+        <div class="card-body">
+            {% if medicines %}
+                <div class="row">
+                    {% for medicine in medicines %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm hover-shadow">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ medicine.name }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ medicine.generic_name }}</h6>
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary me-1">{{ medicine.category }}</span>
+                                        <span class="badge bg-info me-1">{{ medicine.dosage_form }}</span>
+                                    </div>
+                                    <p class="card-text">{{ medicine.description|truncatewords:30 }}</p>
+                                    <hr>
+                                    <div>
+                                        <strong>Common Uses:</strong>
+                                        <ul class="mb-3 small">
+                                            {% for use in medicine.common_uses %}
+                                                <li>{{ use }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#medicineModal{{ medicine.id }}">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medicine Detail Modal -->
+                        <div class="modal fade" id="medicineModal{{ medicine.id }}" tabindex="-1" aria-labelledby="medicineModal{{ medicine.id }}Label" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="medicineModal{{ medicine.id }}Label">{{ medicine.name }} ({{ medicine.generic_name }})</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Description</h6>
+                                            <p>{{ medicine.description }}</p>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Common Uses</h6>
+                                            <ul>
+                                                {% for use in medicine.common_uses %}
+                                                    <li>{{ use }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Dosage and Administration</h6>
+                                            <p>{{ medicine.dosage }}</p>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Side Effects</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6 class="text-muted small">Common</h6>
+                                                    <ul class="small">
+                                                        {% for effect in medicine.side_effects.common %}
+                                                            <li>{{ effect }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6 class="text-danger small">Serious</h6>
+                                                    <ul class="small">
+                                                        {% for effect in medicine.side_effects.serious %}
+                                                            <li>{{ effect }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Precautions</h6>
+                                            <ul>
+                                                {% for precaution in medicine.precautions %}
+                                                    <li>{{ precaution }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Drug Interactions</h6>
+                                            <ul>
+                                                {% for interaction in medicine.interactions %}
+                                                    <li>{{ interaction }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary">Save to My Medicines</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-pills fa-3x text-muted mb-3"></i>
+                    <h4>No medicines found</h4>
+                    <p class="text-muted">No medicines match your search query "{{ query }}".</p>
+                    <p>Try using a different keyword or check the spelling.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+        <!-- Popular Medicines Section (shown when no search is performed) -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Popular Medicines</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Paracetamol -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Paracetamol</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Acetaminophen</h6>
+                                <div class="mb-3">
+                                    <span class="badge bg-primary me-1">Analgesic</span>
+                                    <span class="badge bg-primary me-1">Antipyretic</span>
+                                    <span class="badge bg-info me-1">Tablet</span>
+                                </div>
+                                <p class="card-text">A commonly used over-the-counter pain reliever and fever reducer. It's used to treat many conditions such as headache, muscle aches, arthritis, backache, toothaches, and colds.</p>
+                                <hr>
+                                <div>
+                                    <strong>Common Uses:</strong>
+                                    <ul class="mb-3 small">
+                                        <li>Relief of mild to moderate pain</li>
+                                        <li>Reduction of fever</li>
+                                        <li>Treatment of headaches and migraines</li>
+                                    </ul>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paracetamolModal">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aspirin -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Aspirin</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Acetylsalicylic Acid</h6>
+                                <div class="mb-3">
+                                    <span class="badge bg-primary me-1">Analgesic</span>
+                                    <span class="badge bg-primary me-1">Antipyretic</span>
+                                    <span class="badge bg-primary me-1">Anti-inflammatory</span>
+                                    <span class="badge bg-info me-1">Tablet</span>
+                                </div>
+                                <p class="card-text">A medication used to reduce pain, fever, or inflammation. Specific uses include the treatment of migraines, arthritis, and for prevention of cardiovascular diseases.</p>
+                                <hr>
+                                <div>
+                                    <strong>Common Uses:</strong>
+                                    <ul class="mb-3 small">
+                                        <li>Relief of pain and inflammation</li>
+                                        <li>Prevention of heart attacks and strokes</li>
+                                        <li>Reduction of fever</li>
+                                    </ul>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#aspirinModal">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicine Categories -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Browse by Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-heartbeat fa-2x text-danger mb-3"></i>
+                                <h6 class="card-title">Cardiovascular</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-lungs fa-2x text-info mb-3"></i>
+                                <h6 class="card-title">Respiratory</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-brain fa-2x text-primary mb-3"></i>
+                                <h6 class="card-title">Neurological</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-pills fa-2x text-success mb-3"></i>
+                                <h6 class="card-title">Antibiotics</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-stomach fa-2x text-warning mb-3"></i>
+                                <h6 class="card-title">Gastrointestinal</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-allergies fa-2x text-danger mb-3"></i>
+                                <h6 class="card-title">Antihistamines</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-stethoscope fa-2x text-secondary mb-3"></i>
+                                <h6 class="card-title">Analgesics</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="#" class="card text-center h-100 text-decoration-none hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="fas fa-first-aid fa-2x text-primary mb-3"></i>
+                                <h6 class="card-title">All Categories</h6>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Medicine Detail Modals for Popular Medicines -->
+    <!-- Paracetamol Modal -->
+    <div class="modal fade" id="paracetamolModal" tabindex="-1" aria-labelledby="paracetamolModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paracetamolModalLabel">Paracetamol (Acetaminophen)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Description</h6>
+                        <p>Paracetamol (Acetaminophen) is a commonly used over-the-counter pain reliever and fever reducer. It's effective for treating many types of pain including headaches, toothaches, backaches, and pain associated with colds and flu. It works by blocking the production of certain chemicals in the brain that signal pain and cause fever.</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Common Uses</h6>
+                        <ul>
+                            <li>Relief of mild to moderate pain</li>
+                            <li>Reduction of fever</li>
+                            <li>Treatment of headaches and migraines</li>
+                            <li>Management of pain associated with arthritis</li>
+                            <li>Relief of cold and flu symptoms</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Dosage and Administration</h6>
+                        <p>For adults and children 12 years and older: 500-1000 mg every 4-6 hours as needed, not exceeding 4000 mg in 24 hours.</p>
+                        <p>For children under 12 years: Dosage is based on weight and age. Consult a healthcare professional.</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Side Effects</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted small">Common</h6>
+                                <ul class="small">
+                                    <li>Nausea</li>
+                                    <li>Upset stomach</li>
+                                    <li>Headache</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger small">Serious</h6>
+                                <ul class="small">
+                                    <li>Liver damage (with overdose or long-term use)</li>
+                                    <li>Allergic reactions (rash, itching, swelling)</li>
+                                    <li>Decreased blood cell counts (rare)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Precautions</h6>
+                        <ul>
+                            <li>Do not exceed the recommended dose</li>
+                            <li>Avoid alcohol while taking paracetamol as it can increase the risk of liver damage</li>
+                            <li>Consult a doctor if you have liver disease, kidney disease, or alcohol dependence</li>
+                            <li>Not recommended for long-term use without medical supervision</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Drug Interactions</h6>
+                        <ul>
+                            <li>Warfarin (may increase risk of bleeding)</li>
+                            <li>Certain anti-seizure medications</li>
+                            <li>Isoniazid (used to treat tuberculosis)</li>
+                            <li>Other medications containing paracetamol (risk of overdose)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save to My Medicines</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aspirin Modal -->
+    <div class="modal fade" id="aspirinModal" tabindex="-1" aria-labelledby="aspirinModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aspirinModalLabel">Aspirin (Acetylsalicylic Acid)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Description</h6>
+                        <p>Aspirin is a nonsteroidal anti-inflammatory drug (NSAID) used to reduce pain, fever, and inflammation. It also has anti-platelet effects, which means it can help prevent blood clots, making it useful for preventing heart attacks and strokes in high-risk individuals.</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Common Uses</h6>
+                        <ul>
+                            <li>Relief of pain and inflammation</li>
+                            <li>Reduction of fever</li>
+                            <li>Prevention of heart attacks and strokes</li>
+                            <li>Management of arthritis and other inflammatory conditions</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Dosage and Administration</h6>
+                        <p>For pain or fever: 325-650 mg every 4-6 hours as needed, not exceeding 4000 mg in 24 hours.</p>
+                        <p>For heart attack or stroke prevention: 75-325 mg daily as advised by a healthcare professional.</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Side Effects</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted small">Common</h6>
+                                <ul class="small">
+                                    <li>Upset stomach</li>
+                                    <li>Heartburn</li>
+                                    <li>Nausea</li>
+                                    <li>Increased bleeding time</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger small">Serious</h6>
+                                <ul class="small">
+                                    <li>Gastrointestinal bleeding</li>
+                                    <li>Allergic reactions</li>
+                                    <li>Reye's syndrome (in children with viral infections)</li>
+                                    <li>Tinnitus (ringing in ears) with high doses</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Precautions</h6>
+                        <ul>
+                            <li>Not recommended for children under 12 with viral illnesses (risk of Reye's syndrome)</li>
+                            <li>Use with caution in people with asthma, allergies, stomach ulcers, or bleeding disorders</li>
+                            <li>Stop taking at least 7 days before scheduled surgery</li>
+                            <li>Consult a doctor before taking if you have kidney disease, liver disease, or heart failure</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Drug Interactions</h6>
+                        <ul>
+                            <li>Anticoagulants (increased risk of bleeding)</li>
+                            <li>Other NSAIDs (increased risk of side effects)</li>
+                            <li>ACE inhibitors (reduced effectiveness)</li>
+                            <li>Methotrexate (increased toxicity)</li>
+                            <li>Corticosteroids (increased risk of gastrointestinal bleeding)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save to My Medicines</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

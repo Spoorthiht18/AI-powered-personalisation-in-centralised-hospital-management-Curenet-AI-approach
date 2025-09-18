@@ -1,0 +1,875 @@
+{% extends 'base/base.html' %}
+
+{% block title %}My Appointments - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">
+                <i class="fas fa-calendar-alt me-2"></i>
+                My Appointments
+            </h1>
+            <p class="text-muted">Manage your scheduled medical appointments</p>
+        </div>
+        <div class="col-auto d-flex align-items-center">
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> New Appointment
+            </a>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <ul class="nav nav-tabs" id="appointmentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="true">
+                                Upcoming
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false">
+                                Past
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab" aria-controls="cancelled" aria-selected="false">
+                                Cancelled
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue" type="button" role="tab" aria-controls="queue" aria-selected="false">
+                                <i class="fas fa-ticket-alt me-1"></i> Queue System
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="appointmentTabsContent">
+        <!-- Upcoming Appointments -->
+        <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+            <!-- Example appointments (will be replaced by dynamic data) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-primary-subtle p-3 text-center">
+                                <div class="fw-bold">MAY</div>
+                                <div class="fs-3 fw-bold">15</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Rajeev Sharma</h5>
+                            <div class="text-primary mb-2">Cardiology</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                Manipal Hospital, Bengaluru
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                10:30 AM - 11:00 AM
+                            </div>
+                            <div class="badge bg-success">Confirmed</div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <div class="btn-group mb-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i> Reschedule
+                                </a>
+                                <a href="#" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                            </div>
+                            <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i> Get Directions
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-primary-subtle p-3 text-center">
+                                <div class="fw-bold">MAY</div>
+                                <div class="fs-3 fw-bold">18</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Aisha Khan</h5>
+                            <div class="text-primary mb-2">Pediatrics</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                KIMS Hospital, Hubballi
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                2:00 PM - 2:30 PM
+                            </div>
+                            <div class="badge bg-warning text-dark">Pending</div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <div class="btn-group mb-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i> Reschedule
+                                </a>
+                                <a href="#" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                            </div>
+                            <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i> Get Directions
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-primary-subtle p-3 text-center">
+                                <div class="fw-bold">MAY</div>
+                                <div class="fs-3 fw-bold">25</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Vikram Desai</h5>
+                            <div class="text-primary mb-2">Orthopedics</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                JSS Hospital, Mysuru
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                11:15 AM - 11:45 AM
+                            </div>
+                            <div class="badge bg-info">Rescheduled</div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <div class="btn-group mb-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i> Reschedule
+                                </a>
+                                <a href="#" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                            </div>
+                            <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i> Get Directions
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past Appointments -->
+        <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-light p-3 text-center">
+                                <div class="fw-bold">APR</div>
+                                <div class="fs-3 fw-bold">28</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Priya Nayak</h5>
+                            <div class="text-primary mb-2">Neurology</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                KMC Hospital, Mangalore
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                9:00 AM - 9:30 AM
+                            </div>
+                            <div class="badge bg-secondary">Completed</div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <a href="#" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fas fa-star me-1"></i> Rate & Review
+                            </a>
+                            <a href="#" class="btn btn-outline-success btn-sm mb-2">
+                                <i class="fas fa-file-medical me-1"></i> View Prescription
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-light p-3 text-center">
+                                <div class="fw-bold">APR</div>
+                                <div class="fs-3 fw-bold">15</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Suresh Kumar</h5>
+                            <div class="text-primary mb-2">Pulmonology</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                Apollo Hospital, Bengaluru
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                3:45 PM - 4:15 PM
+                            </div>
+                            <div class="badge bg-secondary">Completed</div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <a href="#" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fas fa-star me-1"></i> Rate & Review
+                            </a>
+                            <a href="#" class="btn btn-outline-success btn-sm mb-2">
+                                <i class="fas fa-file-medical me-1"></i> View Prescription
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancelled Appointments -->
+        <div class="tab-pane fade" id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-light p-3 text-center">
+                                <div class="fw-bold">MAY</div>
+                                <div class="fs-3 fw-bold">10</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Rajesh Rao</h5>
+                            <div class="text-primary mb-2">Dermatology</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                Manipal Hospital, Bengaluru
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                1:30 PM - 2:00 PM
+                            </div>
+                            <div class="badge bg-danger">Cancelled</div>
+                            <div class="small text-muted mt-2">
+                                <em>Reason: Personal emergency</em>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <a href="#" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fas fa-redo me-1"></i> Reschedule
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-1 mb-3 mb-md-0">
+                            <div class="rounded-3 bg-light p-3 text-center">
+                                <div class="fw-bold">APR</div>
+                                <div class="fs-3 fw-bold">20</div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-8">
+                            <h5 class="mb-1">Dr. Meena Patil</h5>
+                            <div class="text-primary mb-2">Gynecology</div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-hospital me-2 text-muted"></i>
+                                SDM Hospital, Dharwad
+                            </div>
+                            <div class="mb-2 small">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                11:00 AM - 11:30 AM
+                            </div>
+                            <div class="badge bg-danger">Cancelled</div>
+                            <div class="small text-muted mt-2">
+                                <em>Reason: Doctor unavailable</em>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-lg-3 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0">
+                            <a href="#" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fas fa-redo me-1"></i> Reschedule
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none p-0">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Queue System Tab -->
+        <div class="tab-pane fade" id="queue" role="tabpanel" aria-labelledby="queue-tab">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-hospital me-2"></i>
+                                Hospital Queue System
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Hospital Selection -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="hospitalSelect" class="form-label">Select Hospital</label>
+                                    <select class="form-select" id="hospitalSelect">
+                                        <option value="">Choose a hospital...</option>
+                                        <!-- Will be populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="doctorSelect" class="form-label">Select Doctor (Optional)</label>
+                                    <select class="form-select" id="doctorSelect" disabled>
+                                        <option value="">Choose a doctor...</option>
+                                        <!-- Will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Queue Statistics -->
+                            <div class="row mb-4" id="queueStats" style="display: none;">
+                                <div class="col-md-3">
+                                    <div class="card bg-warning text-dark">
+                                        <div class="card-body text-center">
+                                            <h4 class="mb-0" id="waitingCount">0</h4>
+                                            <small>Waiting</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body text-center">
+                                            <h4 class="mb-0" id="callingCount">0</h4>
+                                            <small>Calling</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body text-center">
+                                            <h4 class="mb-0" id="inProgressCount">0</h4>
+                                            <small>In Progress</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body text-center">
+                                            <h4 class="mb-0" id="completedCount">0</h4>
+                                            <small>Completed Today</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Current Queue Display -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-list me-2"></i>
+                                                Current Queue
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0" id="queueTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Token #</th>
+                                                            <th>Patient</th>
+                                                            <th>Doctor</th>
+                                                            <th>Department</th>
+                                                            <th>Status</th>
+                                                            <th>Priority</th>
+                                                            <th>Wait Time</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="queueTableBody">
+                                                        <!-- Will be populated dynamically -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-clock me-2"></i>
+                                                Recently Completed
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="list-group list-group-flush" id="completedList">
+                                                <!-- Will be populated dynamically -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Get Token Button -->
+                            <div class="row mt-4" id="getTokenSection" style="display: none;">
+                                <div class="col-12">
+                                    <div class="card border-primary">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title text-primary">Need a Token?</h5>
+                                            <p class="card-text">Get your queue token for the selected hospital and doctor.</p>
+                                            <button class="btn btn-primary btn-lg" id="getTokenBtn">
+                                                <i class="fas fa-ticket-alt me-2"></i>
+                                                Get Token
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <nav aria-label="Appointment pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Queue System JavaScript -->
+<script>
+class QueueSystem {
+    constructor() {
+        this.socket = null;
+        this.currentHospitalId = null;
+        this.hospitals = [];
+        this.doctors = {};
+        this.init();
+    }
+
+    async init() {
+        await this.loadHospitals();
+        this.setupEventListeners();
+        this.setupWebSocket();
+    }
+
+    async loadHospitals() {
+        try {
+            const response = await fetch('/api/hospitals/');
+            this.hospitals = await response.json();
+            this.populateHospitalSelect();
+        } catch (error) {
+            console.error('Error loading hospitals:', error);
+        }
+    }
+
+    populateHospitalSelect() {
+        const select = document.getElementById('hospitalSelect');
+        select.innerHTML = '<option value="">Choose a hospital...</option>';
+        
+        this.hospitals.forEach(hospital => {
+            const option = document.createElement('option');
+            option.value = hospital.id;
+            option.textContent = hospital.name;
+            select.appendChild(option);
+        });
+    }
+
+    async loadDoctors(hospitalId) {
+        try {
+            const response = await fetch(`/api/hospitals/${hospitalId}/doctors/`);
+            this.doctors[hospitalId] = await response.json();
+            this.populateDoctorSelect(hospitalId);
+        } catch (error) {
+            console.error('Error loading doctors:', error);
+        }
+    }
+
+    populateDoctorSelect(hospitalId) {
+        const select = document.getElementById('doctorSelect');
+        select.innerHTML = '<option value="">Choose a doctor...</option>';
+        select.disabled = false;
+        
+        if (this.doctors[hospitalId]) {
+            this.doctors[hospitalId].forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = `Dr. ${doctor.name} - ${doctor.specialization}`;
+                select.appendChild(option);
+            });
+        }
+    }
+
+    setupEventListeners() {
+        // Hospital selection change
+        document.getElementById('hospitalSelect').addEventListener('change', (e) => {
+            const hospitalId = e.target.value;
+            if (hospitalId) {
+                this.currentHospitalId = hospitalId;
+                this.loadDoctors(hospitalId);
+                this.connectWebSocket(hospitalId);
+                this.showQueueSection();
+            } else {
+                this.hideQueueSection();
+                this.disconnectWebSocket();
+            }
+        });
+
+        // Doctor selection change
+        document.getElementById('doctorSelect').addEventListener('change', (e) => {
+            const doctorId = e.target.value;
+            if (doctorId) {
+                this.showGetTokenSection();
+            } else {
+                this.hideGetTokenSection();
+            }
+        });
+
+        // Get token button
+        document.getElementById('getTokenBtn').addEventListener('click', () => {
+            this.getToken();
+        });
+    }
+
+    setupWebSocket() {
+        // WebSocket will be connected when hospital is selected
+    }
+
+    connectWebSocket(hospitalId) {
+        if (this.socket) {
+            this.socket.close();
+        }
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/queue/${hospitalId}/`;
+        
+        this.socket = new WebSocket(wsUrl);
+        
+        this.socket.onopen = () => {
+            console.log('WebSocket connected');
+            this.requestQueueStatus();
+        };
+        
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleWebSocketMessage(data);
+        };
+        
+        this.socket.onclose = () => {
+            console.log('WebSocket disconnected');
+        };
+        
+        this.socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    }
+
+    disconnectWebSocket() {
+        if (this.socket) {
+            this.socket.close();
+            this.socket = null;
+        }
+    }
+
+    requestQueueStatus() {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify({
+                type: 'get_queue_status'
+            }));
+        }
+    }
+
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'queue_status':
+                this.updateQueueDisplay(data.data);
+                break;
+            case 'token_status_update':
+                this.handleTokenStatusUpdate(data);
+                break;
+        }
+    }
+
+    updateQueueDisplay(queueData) {
+        if (queueData.error) {
+            console.error('Queue data error:', queueData.error);
+            return;
+        }
+
+        // Update statistics
+        document.getElementById('waitingCount').textContent = queueData.stats.waiting;
+        document.getElementById('callingCount').textContent = queueData.stats.calling;
+        document.getElementById('inProgressCount').textContent = queueData.stats.in_progress;
+        document.getElementById('completedCount').textContent = queueData.stats.completed_today;
+
+        // Update queue table
+        this.updateQueueTable(queueData.active_tokens);
+        
+        // Update completed list
+        this.updateCompletedList(queueData.completed_tokens);
+    }
+
+    updateQueueTable(activeTokens) {
+        const tbody = document.getElementById('queueTableBody');
+        tbody.innerHTML = '';
+
+        if (activeTokens.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No active tokens in queue</td></tr>';
+            return;
+        }
+
+        activeTokens.forEach(token => {
+            const row = document.createElement('tr');
+            row.className = this.getRowClass(token.status);
+            
+            row.innerHTML = `
+                <td><span class="badge bg-primary fs-6">${token.token_number}</span></td>
+                <td>${token.patient_name}</td>
+                <td>Dr. ${token.doctor_name}</td>
+                <td>${token.department}</td>
+                <td>${this.getStatusBadge(token.status)}</td>
+                <td>${this.getPriorityBadge(token.priority)}</td>
+                <td>${token.estimated_wait_time ? `${token.estimated_wait_time} min` : 'N/A'}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    updateCompletedList(completedTokens) {
+        const list = document.getElementById('completedList');
+        list.innerHTML = '';
+
+        if (completedTokens.length === 0) {
+            list.innerHTML = '<div class="list-group-item text-center text-muted">No completed tokens today</div>';
+            return;
+        }
+
+        completedTokens.forEach(token => {
+            const item = document.createElement('div');
+            item.className = 'list-group-item';
+            
+            const completedTime = new Date(token.completed_at).toLocaleTimeString();
+            
+            item.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Token #${token.token_number}</strong><br>
+                        <small class="text-muted">${token.patient_name} - Dr. ${token.doctor_name}</small>
+                    </div>
+                    <small class="text-success">${completedTime}</small>
+                </div>
+            `;
+            
+            list.appendChild(item);
+        });
+    }
+
+    getRowClass(status) {
+        switch (status) {
+            case 'WAITING': return '';
+            case 'CALLING': return 'table-warning';
+            case 'IN_PROGRESS': return 'table-info';
+            default: return '';
+        }
+    }
+
+    getStatusBadge(status) {
+        const badges = {
+            'WAITING': 'bg-secondary',
+            'CALLING': 'bg-warning text-dark',
+            'IN_PROGRESS': 'bg-primary',
+            'COMPLETED': 'bg-success',
+            'CANCELLED': 'bg-danger'
+        };
+        
+        return `<span class="badge ${badges[status] || 'bg-secondary'}">${status.replace('_', ' ')}</span>`;
+    }
+
+    getPriorityBadge(priority) {
+        const badges = {
+            'NORMAL': 'bg-secondary',
+            'URGENT': 'bg-warning text-dark',
+            'EMERGENCY': 'bg-danger'
+        };
+        
+        return `<span class="badge ${badges[priority] || 'bg-secondary'}">${priority}</span>`;
+    }
+
+    handleTokenStatusUpdate(data) {
+        // Refresh queue status when token status changes
+        this.requestQueueStatus();
+    }
+
+    showQueueSection() {
+        document.getElementById('queueStats').style.display = 'block';
+        document.getElementById('getTokenSection').style.display = 'block';
+    }
+
+    hideQueueSection() {
+        document.getElementById('queueStats').style.display = 'none';
+        document.getElementById('getTokenSection').style.display = 'none';
+    }
+
+    showGetTokenSection() {
+        document.getElementById('getTokenSection').style.display = 'block';
+    }
+
+    hideGetTokenSection() {
+        document.getElementById('getTokenSection').style.display = 'none';
+    }
+
+    async getToken() {
+        const hospitalId = this.currentHospitalId;
+        const doctorId = document.getElementById('doctorSelect').value;
+        
+        if (!hospitalId || !doctorId) {
+            alert('Please select both hospital and doctor');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/queue-tokens/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken()
+                },
+                body: JSON.stringify({
+                    hospital_id: hospitalId,
+                    doctor_id: doctorId,
+                    reason: 'General consultation'
+                })
+            });
+
+            if (response.ok) {
+                const tokenData = await response.json();
+                this.showTokenSuccess(tokenData);
+                this.requestQueueStatus(); // Refresh queue
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.message || 'Failed to get token'}`);
+            }
+        } catch (error) {
+            console.error('Error getting token:', error);
+            alert('Failed to get token. Please try again.');
+        }
+    }
+
+    showTokenSuccess(tokenData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'tokenSuccessModal';
+        
+        modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Token Generated Successfully!
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="display-1 text-success mb-3">${tokenData.token_number}</div>
+                        <h5>Your Token Number</h5>
+                        <p class="text-muted">Please wait for your turn. You will be called when it's your time.</p>
+                        <div class="alert alert-info">
+                            <strong>Estimated Wait Time:</strong> ${tokenData.estimated_wait_time || 'N/A'} minutes
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Got it!</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+        
+        // Remove modal from DOM after it's hidden
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modal);
+        });
+    }
+
+    getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+}
+
+// Initialize queue system when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new QueueSystem();
+});
+</script>
+
+{% endblock %} 

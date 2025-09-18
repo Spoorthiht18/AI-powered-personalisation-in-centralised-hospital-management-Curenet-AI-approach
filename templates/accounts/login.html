@@ -1,0 +1,383 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Login - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Welcome to CureNet AI
+                    </h3>
+                    <p class="mt-2 mb-0">Please authenticate to continue</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <!-- Step 1: Phone Number Form -->
+                    <div id="phoneForm" class="auth-form">
+                        <form id="phoneNumberForm">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                <input type="tel" id="phone_number" name="phone_number" class="form-control form-control-lg" placeholder="Enter your phone number" required>
+                                <div class="form-text">We'll send an OTP to verify your phone number</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">I am a</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check user-type-option">
+                                        <input class="form-check-input" type="radio" name="user_type" id="patientRadio" value="PATIENT" checked>
+                                        <label class="form-check-label user-type-label py-2 px-3 rounded" for="patientRadio">
+                                            <i class="fas fa-user me-2"></i>
+                                            Patient
+                                        </label>
+                                    </div>
+                                    <div class="form-check user-type-option">
+                                        <input class="form-check-input" type="radio" name="user_type" id="hospitalRadio" value="HOSPITAL">
+                                        <label class="form-check-label user-type-label py-2 px-3 rounded" for="hospitalRadio">
+                                            <i class="fas fa-hospital me-2"></i>
+                                            Hospital
+                                        </label>
+                                    </div>
+                                    <div class="form-check user-type-option">
+                                        <input class="form-check-input" type="radio" name="user_type" id="adminRadio" value="ADMIN">
+                                        <label class="form-check-label user-type-label py-2 px-3 rounded" for="adminRadio">
+                                            <i class="fas fa-user-shield me-2"></i>
+                                            Admin
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="button" id="sendOtpBtn" class="btn btn-primary btn-lg">
+                                    Send OTP
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: OTP Verification Form -->
+                    <div id="otpForm" class="auth-form" style="display: none;">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-message-dots text-primary fa-3x mb-3"></i>
+                            <h4>OTP Verification</h4>
+                            <p class="text-muted" id="otpSentMessage">
+                                We've sent a verification code to <span id="phoneDisplay"></span>
+                            </p>
+                        </div>
+
+                        <form id="otpVerificationForm">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="otp_code" class="form-label">Enter OTP</label>
+                                <input type="text" id="otp_code" name="otp_code" class="form-control form-control-lg text-center" placeholder="Enter 6-digit OTP" maxlength="6" required>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="button" id="verifyOtpBtn" class="btn btn-primary btn-lg">
+                                    Verify & Login
+                                </button>
+                                <button type="button" id="resendOtpBtn" class="btn btn-outline-secondary">
+                                    Resend OTP
+                                </button>
+                                <button type="button" id="backToPhoneBtn" class="btn btn-link">
+                                    Change Phone Number
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Debug information (will be hidden in production) -->
+                    <div id="debug-info" class="mt-4 p-3 bg-light border rounded" style="display: none;">
+                        <h6 class="border-bottom pb-2">Debug Information</h6>
+                        <div id="debug-content" class="small text-muted">
+                            <div>No debug info available yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- New user registration prompt -->
+            <div class="mt-4 text-center">
+                <p>
+                    New to CureNet AI? 
+                    <a href="#" id="registerLink">Create an account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-type-option {
+        flex: 1;
+    }
+    
+    .form-check-input {
+        display: none;
+    }
+    
+    .user-type-label {
+        display: block;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-check-input:checked + .user-type-label {
+        background-color: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
+    }
+    
+    .auth-form {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneForm = document.getElementById('phoneForm');
+        const otpForm = document.getElementById('otpForm');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const resendOtpBtn = document.getElementById('resendOtpBtn');
+        const backToPhoneBtn = document.getElementById('backToPhoneBtn');
+        const phoneDisplay = document.getElementById('phoneDisplay');
+        const debugInfo = document.getElementById('debug-info');
+        const debugContent = document.getElementById('debug-content');
+        
+        // Show debug in development
+        debugInfo.style.display = 'block';
+        
+        // Helper function to log debug information
+        function logDebug(message) {
+            const logItem = document.createElement('div');
+            logItem.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            debugContent.appendChild(logItem);
+            console.log(message);
+        }
+        
+        // Send OTP button click
+        sendOtpBtn.addEventListener('click', function() {
+            const phoneNumber = document.getElementById('phone_number').value;
+            const userType = document.querySelector('input[name="user_type"]:checked').value;
+            
+            if (!phoneNumber) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            logDebug(`Sending OTP to ${phoneNumber} (${userType})`);
+            
+            // Show loading state
+            sendOtpBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            sendOtpBtn.disabled = true;
+            
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            logDebug(`CSRF Token: ${csrftoken ? 'Present' : 'Missing'}`);
+            
+            // Call the API to send OTP
+            fetch('/api/accounts/send-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    user_type: userType
+                })
+            })
+            .then(response => {
+                logDebug(`API Response Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                // Reset button state
+                sendOtpBtn.innerHTML = 'Send OTP';
+                sendOtpBtn.disabled = false;
+                
+                logDebug(`API Response: ${JSON.stringify(data)}`);
+                
+                if (data.success) {
+                    phoneDisplay.textContent = phoneNumber;
+                    phoneForm.style.display = 'none';
+                    otpForm.style.display = 'block';
+                    
+                    // If debug_otp is provided (development only), show it
+                    if (data.debug_otp) {
+                        logDebug(`DEBUG OTP: ${data.debug_otp}`);
+                    }
+                } else {
+                    alert(data.message || 'Failed to send OTP');
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                sendOtpBtn.innerHTML = 'Send OTP';
+                sendOtpBtn.disabled = false;
+                
+                logDebug(`Error: ${error.message}`);
+                console.error('Error:', error);
+                alert('An error occurred while sending OTP. Please try again.');
+            });
+        });
+        
+        // Verify OTP button click
+        verifyOtpBtn.addEventListener('click', function() {
+            const otpCode = document.getElementById('otp_code').value;
+            const phoneNumber = document.getElementById('phone_number').value;
+            
+            if (!otpCode) {
+                alert('Please enter the OTP');
+                return;
+            }
+            
+            logDebug(`Verifying OTP: ${otpCode} for ${phoneNumber}`);
+            
+            // Show loading state
+            verifyOtpBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+            verifyOtpBtn.disabled = true;
+            
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Call the API to verify OTP
+            fetch('/api/accounts/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    otp_code: otpCode
+                })
+            })
+            .then(response => {
+                logDebug(`Verify API Response Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                // Reset button state
+                verifyOtpBtn.innerHTML = 'Verify & Login';
+                verifyOtpBtn.disabled = false;
+                
+                logDebug(`Verify API Response: ${JSON.stringify(data)}`);
+                
+                if (data.success) {
+                    window.location.href = data.redirect_url || '/accounts/dashboard/';
+                } else {
+                    alert(data.message || 'Invalid OTP');
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                verifyOtpBtn.innerHTML = 'Verify & Login';
+                verifyOtpBtn.disabled = false;
+                
+                logDebug(`Verify Error: ${error.message}`);
+                console.error('Error:', error);
+                alert('An error occurred while verifying OTP. Please try again.');
+            });
+        });
+        
+        // Resend OTP button click
+        resendOtpBtn.addEventListener('click', function() {
+            const phoneNumber = document.getElementById('phone_number').value;
+            const userType = document.querySelector('input[name="user_type"]:checked').value;
+            
+            logDebug(`Resending OTP to ${phoneNumber}`);
+            
+            // Show loading state
+            resendOtpBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resending...';
+            resendOtpBtn.disabled = true;
+            
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Call the API to resend OTP
+            fetch('/api/accounts/send-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    user_type: userType
+                })
+            })
+            .then(response => {
+                logDebug(`Resend API Response Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                // Reset button state after a delay
+                setTimeout(function() {
+                    resendOtpBtn.innerHTML = 'Resend OTP';
+                    resendOtpBtn.disabled = false;
+                }, 2000);
+                
+                logDebug(`Resend API Response: ${JSON.stringify(data)}`);
+                
+                if (data.success) {
+                    // Show success message
+                    resendOtpBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i> OTP Sent';
+                    
+                    // If debug_otp is provided (development only), show it
+                    if (data.debug_otp) {
+                        logDebug(`DEBUG OTP: ${data.debug_otp}`);
+                    }
+                } else {
+                    alert(data.message || 'Failed to resend OTP');
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                setTimeout(function() {
+                    resendOtpBtn.innerHTML = 'Resend OTP';
+                    resendOtpBtn.disabled = false;
+                }, 2000);
+                
+                logDebug(`Resend Error: ${error.message}`);
+                console.error('Error:', error);
+                alert('An error occurred while resending OTP. Please try again.');
+            });
+        });
+        
+        // Back to phone form button click
+        backToPhoneBtn.addEventListener('click', function() {
+            otpForm.style.display = 'none';
+            phoneForm.style.display = 'block';
+        });
+        
+        // CSRF token function for Django
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %} 

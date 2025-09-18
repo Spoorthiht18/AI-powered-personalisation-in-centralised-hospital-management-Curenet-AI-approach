@@ -1,0 +1,223 @@
+{% extends 'base/base.html' %}
+
+{% block title %}CureNet AI - AI-Powered Centralized Hospital Management{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-primary mb-3">Healthcare Reimagined with AI</h1>
+                <p class="lead mb-4">
+                    CureNet AI is a comprehensive platform that connects patients with hospitals and doctors, powered by artificial intelligence for personalized healthcare recommendations.
+                </p>
+                <div class="d-flex gap-3">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">Get Started</a>
+                    {% else %}
+                        {% if user.user_type == 'PATIENT' %}
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary btn-lg">My Dashboard</a>
+                        {% elif user.user_type == 'HOSPITAL' %}
+                            <a href="{% url 'hospitals:hospital_dashboard' %}" class="btn btn-primary btn-lg">Hospital Dashboard</a>
+                        {% endif %}
+                    {% endif %}
+                    <a href="{% url 'chatbot:chatbot_interface' %}" class="btn btn-outline-primary btn-lg">AI Chat Assistant</a>
+                </div>
+            </div>
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <img src="/static/images/healthcare-hero.svg" alt="Healthcare Illustration" class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Innovative Healthcare Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white mx-auto mb-4">
+                            <i class="fas fa-robot fa-2x"></i>
+                        </div>
+                        <h4>24/7 AI Medical Assistant</h4>
+                        <p class="text-muted">
+                            Our AI chatbot provides medical guidance, suggests appropriate doctors, and answers medicine-related queries anytime.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white mx-auto mb-4">
+                            <i class="fas fa-hospital-user fa-2x"></i>
+                        </div>
+                        <h4>Hospital Token Booking</h4>
+                        <p class="text-muted">
+                            Easily book appointments with top-rated doctors at hospitals across the country based on location and ratings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white mx-auto mb-4">
+                            <i class="fas fa-video fa-2x"></i>
+                        </div>
+                        <h4>Video Consultations</h4>
+                        <p class="text-muted">
+                            Connect with doctors through secure video calls for remote consultations without leaving your home.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">How CureNet AI Works</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step text-center">
+                    <div class="step-number">1</div>
+                    <h5>Sign Up & Verify</h5>
+                    <p class="text-muted">Create an account with your phone number and verify with OTP.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step text-center">
+                    <div class="step-number">2</div>
+                    <h5>Describe Symptoms</h5>
+                    <p class="text-muted">Chat with our AI to describe your symptoms and get recommendations.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step text-center">
+                    <div class="step-number">3</div>
+                    <h5>Book Appointment</h5>
+                    <p class="text-muted">Choose a hospital or doctor and book your appointment or request home visit.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step text-center">
+                    <div class="step-number">4</div>
+                    <h5>Receive Care</h5>
+                    <p class="text-muted">Visit the hospital, have a video call, or receive a home visit from the doctor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- For Hospitals Section -->
+<section class="hospitals-section py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="/static/images/hospital-dashboard.svg" alt="Hospital Dashboard" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <h2 class="mb-4">For Hospitals & Healthcare Providers</h2>
+                <p class="lead mb-4">Join our network to reach more patients and streamline your operations.</p>
+                <ul class="list-unstyled feature-list">
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Register your hospital with a unique verification code</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Add doctor profiles with specializations and availability</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Manage appointments and patient records</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Conduct video consultations with secure meeting IDs</li>
+                </ul>
+                <a href="{% url 'hospitals:hospital_register' %}" class="btn btn-primary mt-3">Register Your Hospital</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- App Features Section -->
+<section class="app-features-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Complete Healthcare Solution</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4><i class="fas fa-location-dot text-primary me-2"></i> Location-Based Recommendations</h4>
+                        <p>Find the nearest hospitals based on your location for quick access to healthcare services.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4><i class="fas fa-house-medical-circle-check text-primary me-2"></i> Home Doctor Visits</h4>
+                        <p>Request home visits from doctors for patients who cannot travel to hospitals.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4><i class="fas fa-file-medical text-primary me-2"></i> Electronic Health Records</h4>
+                        <p>Securely store and access your complete medical history across all healthcare providers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Experience Modern Healthcare?</h2>
+        <p class="lead mb-4">Join thousands of patients and healthcare providers on CureNet AI platform.</p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg">Get Started Today</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 5rem 0;
+    }
+    
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background-color: var(--bs-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+    
+    .feature-list li {
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .cta-section {
+        background: linear-gradient(to right, #0d6efd, #0b5ed7);
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,3 @@
+hospital_name,registration_number,phone_number,established_year,description,email,website,emergency_contact,ambulance_number,address,latitude,longitude,facilities,is_verified,verification_code
+"Example Hospital 1","REG123456","08012345678",1990,"A multi-specialty hospital.","info@example1.com","https://example1.com","080-1111111","080-2222222","123 MG Road, Bengaluru, Karnataka",12.9716,77.5946,"ICU, Emergency, Laboratory",True,
+"Example Hospital 2","REG654321","08087654321",2005,"A leading hospital in Mysuru.","info@example2.com","https://example2.com","0821-3333333","0821-4444444","456 KR Circle, Mysuru, Karnataka",12.2958,76.6394,"Radiology, ICU, Emergency",True, 

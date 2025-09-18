@@ -1,0 +1,215 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hospital Dashboard - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">
+                <i class="fas fa-hospital me-2"></i>
+                Hospital Dashboard
+            </h1>
+            <p class="text-muted">Manage your hospital profile and operations</p>
+        </div>
+    </div>
+
+    {% if hospital %}
+        <!-- Hospital Status Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Hospital Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Hospital Name</h6>
+                                <p class="h5">{{ hospital.hospital_name }}</p>
+                                
+                                <h6 class="text-muted mt-3">Registration Number</h6>
+                                <p>{{ hospital.registration_number }}</p>
+                                
+                                {% if hospital.unique_hospital_id %}
+                                    <h6 class="text-muted mt-3">Unique Hospital ID</h6>
+                                    <p class="h6 text-success">{{ hospital.unique_hospital_id }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Status</h6>
+                                {% if hospital.is_approved %}
+                                    <span class="badge bg-success fs-6">
+                                        <i class="fas fa-check-circle me-1"></i> Approved
+                                    </span>
+                                    {% if hospital.approved_at %}
+                                        <p class="text-muted mt-1">Approved on {{ hospital.approved_at|date:"M d, Y" }}</p>
+                                    {% endif %}
+                                {% elif hospital.rejection_reason %}
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="fas fa-times-circle me-1"></i> Rejected
+                                    </span>
+                                    <p class="text-danger mt-2">
+                                        <strong>Reason:</strong> {{ hospital.rejection_reason }}
+                                    </p>
+                                {% else %}
+                                    <span class="badge bg-warning fs-6">
+                                        <i class="fas fa-clock me-1"></i> Pending Approval
+                                    </span>
+                                    <p class="text-muted mt-2">Your registration is under review by our admin team.</p>
+                                {% endif %}
+                                
+                                {% if hospital.admin_notes %}
+                                    <h6 class="text-muted mt-3">Admin Notes</h6>
+                                    <p class="text-muted">{{ hospital.admin_notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if hospital.is_approved %}
+            <!-- Hospital Information -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-hospital me-2"></i>
+                                Hospital Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Established Year</h6>
+                                    <p>{{ hospital.established_year|default:"Not specified" }}</p>
+                                    
+                                    <h6 class="text-muted mt-3">Description</h6>
+                                    <p>{{ hospital.description|default:"No description available" }}</p>
+                                    
+                                    <h6 class="text-muted mt-3">Facilities</h6>
+                                    <p>{{ hospital.facilities|default:"No facilities listed" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Website</h6>
+                                    {% if hospital.website %}
+                                        <p><a href="{{ hospital.website }}" target="_blank">{{ hospital.website }}</a></p>
+                                    {% else %}
+                                        <p>Not specified</p>
+                                    {% endif %}
+                                    
+                                    <h6 class="text-muted mt-3">Emergency Contact</h6>
+                                    <p>{{ hospital.emergency_contact|default:"Not specified" }}</p>
+                                    
+                                    <h6 class="text-muted mt-3">Ambulance Number</h6>
+                                    <p>{{ hospital.ambulance_number|default:"Not specified" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user-md me-2"></i>
+                                Quick Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h3 class="text-primary">{{ hospital.doctors.count }}</h3>
+                                <p class="text-muted">Doctors</p>
+                            </div>
+                            <div class="text-center mt-3">
+                                <h3 class="text-success">{{ hospital.ratings.count }}</h3>
+                                <p class="text-muted">Reviews</p>
+                            </div>
+                            {% if hospital.average_rating > 0 %}
+                                <div class="text-center mt-3">
+                                    <h3 class="text-warning">{{ hospital.average_rating|floatformat:1 }}</h3>
+                                    <p class="text-muted">Average Rating</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'hospitals:edit_hospital_profile' %}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-1"></i> Edit Profile
+                                </a>
+                                <a href="{% url 'hospitals:add_doctor' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i> Add Doctor
+                                </a>
+                                <a href="{% url 'hospitals:doctor_list' %}" class="btn btn-info">
+                                    <i class="fas fa-user-md me-1"></i> Manage Doctors
+                                </a>
+                                <a href="{% url 'hospitals:hospital_detail' hospital.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i> View Public Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Pending Approval Message -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-clock text-warning fa-3x mb-3"></i>
+                            <h4>Registration Under Review</h4>
+                            <p class="text-muted">
+                                Your hospital registration is currently being reviewed by our admin team. 
+                                This process typically takes 24-48 hours.
+                            </p>
+                            {% if hospital.rejection_reason %}
+                                <div class="alert alert-danger mt-3">
+                                    <h6>Registration Rejected</h6>
+                                    <p class="mb-0">{{ hospital.rejection_reason }}</p>
+                                </div>
+                                <a href="{% url 'hospitals:edit_hospital_profile' %}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-1"></i> Update Registration
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- No Hospital Profile -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-hospital text-muted fa-3x mb-3"></i>
+                        <h4>No Hospital Profile Found</h4>
+                        <p class="text-muted">
+                            You haven't registered your hospital yet. Please complete the registration process.
+                        </p>
+                        <a href="{% url 'hospitals:hospital_register' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Register Hospital
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

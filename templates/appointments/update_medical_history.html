@@ -1,0 +1,158 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Update Medical History - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'appointments:medical_history' %}">Medical History</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Update</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-3">
+                <i class="fas fa-edit me-2"></i>
+                Update Medical History
+            </h1>
+            <p class="text-muted">Provide accurate and up-to-date information about your medical history</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Chronic Diseases Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-danger p-2 text-white">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <h5 class="mb-0 ms-3">Chronic Diseases</h5>
+                            </div>
+                            <textarea name="chronic_diseases" id="chronic_diseases" rows="3" class="form-control" placeholder="Enter any chronic diseases, one per line (e.g., Diabetes, Hypertension)">{{ history.chronic_diseases|default:'' }}</textarea>
+                            <div class="form-text">List any long-term medical conditions you have been diagnosed with.</div>
+                        </div>
+                        
+                        <!-- Allergies Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-warning p-2 text-white">
+                                    <i class="fas fa-allergies"></i>
+                                </div>
+                                <h5 class="mb-0 ms-3">Allergies</h5>
+                            </div>
+                            <textarea name="allergies" id="allergies" rows="3" class="form-control" placeholder="Enter any allergies, one per line (e.g., Penicillin, Peanuts)">{{ history.allergies|default:'' }}</textarea>
+                            <div class="form-text">List any allergies to medications, foods, or other substances.</div>
+                        </div>
+                        
+                        <!-- Surgeries Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-info p-2 text-white">
+                                    <i class="fas fa-procedures"></i>
+                                </div>
+                                <h5 class="mb-0 ms-3">Surgeries</h5>
+                            </div>
+                            <textarea name="surgeries" id="surgeries" rows="3" class="form-control" placeholder="Enter any surgeries, one per line (e.g., Appendectomy 2018, Knee replacement 2020)">{{ history.surgeries|default:'' }}</textarea>
+                            <div class="form-text">List any surgical procedures you have undergone, including the year if possible.</div>
+                        </div>
+                        
+                        <!-- Family Medical History Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-success p-2 text-white">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h5 class="mb-0 ms-3">Family Medical History</h5>
+                            </div>
+                            <textarea name="family_medical_history" id="family_medical_history" rows="3" class="form-control" placeholder="Enter any family medical history, one per line (e.g., Father - Heart disease, Mother - Breast cancer)">{{ history.family_medical_history|default:'' }}</textarea>
+                            <div class="form-text">List any significant medical conditions that run in your family.</div>
+                        </div>
+                        
+                        <!-- Current Medications Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-primary p-2 text-white">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <h5 class="mb-0 ms-3">Current Medications</h5>
+                            </div>
+                            <textarea name="current_medications" id="current_medications" rows="3" class="form-control" placeholder="Enter medications you're currently taking, one per line (e.g., Metformin 500mg twice daily)">{{ history.current_medications|default:'' }}</textarea>
+                            <div class="form-text">List all medications you are currently taking, including dosage if possible.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'appointments:medical_history' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Tips for Medical History</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-3"></i>
+                            <div>
+                                <strong>Be comprehensive</strong>
+                                <p class="mb-0 small text-muted">Include all medical conditions, even if they seem minor.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-3"></i>
+                            <div>
+                                <strong>Add details</strong>
+                                <p class="mb-0 small text-muted">Include dates, dosages, and other relevant information when possible.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-3"></i>
+                            <div>
+                                <strong>Update regularly</strong>
+                                <p class="mb-0 small text-muted">Keep your medical history current, especially when medications change.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-3"></i>
+                            <div>
+                                <strong>Be honest</strong>
+                                <p class="mb-0 small text-muted">Accurate information helps doctors provide better care.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <i class="fas fa-lock text-primary fa-2x me-3"></i>
+                        <div>
+                            <h6>Privacy Assured</h6>
+                            <p class="mb-0 small">Your medical information is kept secure and confidential. Only authorized healthcare providers can access it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,323 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hospitals - CureNet AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">
+                <i class="fas fa-hospital me-2"></i>
+                All Hospitals
+            </h1>
+            <p class="text-muted">Find and explore healthcare facilities near you</p>
+        </div>
+        <div class="col-auto d-flex align-items-center">
+            <a href="{% url 'hospitals:nearby_hospitals' %}" class="btn btn-primary me-2">
+                <i class="fas fa-map-marker-alt me-1"></i> Nearby Hospitals
+            </a>
+            <button class="btn btn-outline-primary" onclick="getLocationAndRedirect()">
+                <i class="fas fa-location-arrow me-1"></i> Find Near Me
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" action="{% url 'hospitals:search_hospitals' %}">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label for="search_query" class="form-label">
+                                    <i class="fas fa-search me-2"></i>Search Hospitals
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="search_query" name="q" 
+                                       placeholder="Search by hospital name, specialty, location, or facilities..."
+                                       value="{{ request.GET.q }}">
+                                <div class="form-text">
+                                    Search across {{ total_hospitals }} hospitals with comprehensive data
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sort_by" class="form-label">
+                                    <i class="fas fa-sort me-2"></i>Sort By
+                                </label>
+                                <select class="form-select" id="sort_by" name="sort">
+                                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Name A-Z</option>
+                                    <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>Name Z-A</option>
+                                    <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Rating Low-High</option>
+                                    <option value="rating_desc" {% if request.GET.sort == 'rating_desc' %}selected{% endif %}>Rating High-Low</option>
+                                    <option value="reviews" {% if request.GET.sort == 'reviews' %}selected{% endif %}>Reviews Low-High</option>
+                                    <option value="reviews_desc" {% if request.GET.sort == 'reviews_desc' %}selected{% endif %}>Reviews High-Low</option>
+                                    <option value="doctors" {% if request.GET.sort == 'doctors' %}selected{% endif %}>Doctors Low-High</option>
+                                    <option value="doctors_desc" {% if request.GET.sort == 'doctors_desc' %}selected{% endif %}>Doctors High-Low</option>
+                                    <option value="created" {% if request.GET.sort == 'created' %}selected{% endif %}>Oldest First</option>
+                                    <option value="created_desc" {% if request.GET.sort == 'created_desc' %}selected{% endif %}>Newest First</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="search_category" class="form-label">Category</label>
+                                <select class="form-select" id="search_category" name="category">
+                                    <option value="">All Categories</option>
+                                    <option value="Multi-Specialty">Multi-Specialty</option>
+                                    <option value="Cardiac Specialty">Cardiac Specialty</option>
+                                    <option value="Orthopedic Specialty">Orthopedic Specialty</option>
+                                    <option value="Pediatric Specialty">Pediatric Specialty</option>
+                                    <option value="Psychiatric Specialty">Psychiatric Specialty</option>
+                                    <option value="Government General">Government General</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Advanced Filters
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{% url 'hospitals:hospital_list' %}" class="row g-3">
+                        <!-- Hospital Type Filter -->
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Hospital Type</label>
+                            <select name="type" id="type" class="form-select">
+                                <option value="">All Types</option>
+                                {% for type in hospital_types %}
+                                    <option value="{{ type }}" {% if current_filters.type == type %}selected{% endif %}>{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Specialization Filter -->
+                        <div class="col-md-3">
+                            <label for="specialization" class="form-label">Specialization</label>
+                            <select name="specialization" id="specialization" class="form-select">
+                                <option value="">All Specializations</option>
+                                {% for spec in specializations %}
+                                    <option value="{{ spec.name }}" {% if current_filters.specialization == spec.name %}selected{% endif %}>{{ spec.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Location Filter -->
+                        <div class="col-md-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" name="location" id="location" class="form-control" 
+                                   placeholder="Enter location" value="{{ current_filters.location }}">
+                        </div>
+                        
+                        <!-- Rating Filter -->
+                        <div class="col-md-2">
+                            <label for="rating" class="form-label">Min Rating</label>
+                            <select name="rating" id="rating" class="form-select">
+                                <option value="">Any Rating</option>
+                                <option value="4.5" {% if current_filters.rating == '4.5' %}selected{% endif %}>4.5+ Stars</option>
+                                <option value="4.0" {% if current_filters.rating == '4.0' %}selected{% endif %}>4.0+ Stars</option>
+                                <option value="3.5" {% if current_filters.rating == '3.5' %}selected{% endif %}>3.5+ Stars</option>
+                                <option value="3.0" {% if current_filters.rating == '3.0' %}selected{% endif %}>3.0+ Stars</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Buttons -->
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Clear Filters -->
+                    {% if current_filters.type or current_filters.specialization or current_filters.location or current_filters.rating %}
+                        <div class="mt-3">
+                            <a href="{% url 'hospitals:hospital_list' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times me-1"></i>Clear All Filters
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for hospital in hospitals %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm hover-shadow">
+                <div class="position-relative">
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                        {% if hospital.gallery.first %}
+                            <img src="{{ hospital.gallery.first.image.url }}" alt="{{ hospital.hospital_name }}" class="img-fluid" style="height: 100%; object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-hospital fa-3x text-primary"></i>
+                        {% endif %}
+                    </div>
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i> Verified
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">{{ hospital.hospital_name }}</h5>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="text-warning me-2">
+                            {% with rating=hospital.avg_rating|default:0 %}
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter == rating|floatformat:0|add:"1" and rating|floatformat:1|slice:"-1" == "5" %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <span class="small text-muted">({{ hospital.ratings_count|default:0 }} reviews)</span>
+                    </div>
+                    <p class="card-text mb-3">
+                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                        {{ hospital.user.profile.address|default:"Address not available" }}
+                    </p>
+                    <div class="mb-3">
+                        <div class="d-flex flex-wrap">
+                            {% if hospital.facilities %}
+                                {% for facility in hospital.facilities.split %}
+                                    <span class="badge bg-primary-subtle text-primary me-1 mb-1">{{ facility }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3 small">
+                        <div class="mb-1">
+                            <i class="fas fa-user-md text-muted me-2"></i>
+                            <span>{{ hospital.doctors_count|default:0 }} Doctors</span>
+                        </div>
+                        {% if hospital.emergency_contact %}
+                        <div>
+                            <i class="fas fa-phone text-muted me-2"></i>
+                            <span>{{ hospital.emergency_contact }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <div class="d-grid">
+                        <a href="{% url 'hospitals:hospital_detail' hospital.id %}" class="btn btn-outline-primary">
+                            View Hospital
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No hospitals found. Please check back later.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            {% if page_obj %}
+            <nav aria-label="Hospital pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_filters.type %}&type={{ current_filters.type }}{% endif %}{% if current_filters.specialization %}&specialization={{ current_filters.specialization }}{% endif %}{% if current_filters.location %}&location={{ current_filters.location }}{% endif %}{% if current_filters.rating %}&rating={{ current_filters.rating }}{% endif %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if current_filters.type %}&type={{ current_filters.type }}{% endif %}{% if current_filters.specialization %}&specialization={{ current_filters.specialization }}{% endif %}{% if current_filters.location %}&location={{ current_filters.location }}{% endif %}{% if current_filters.rating %}&rating={{ current_filters.rating }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_filters.type %}&type={{ current_filters.type }}{% endif %}{% if current_filters.specialization %}&specialization={{ current_filters.specialization }}{% endif %}{% if current_filters.location %}&location={{ current_filters.location }}{% endif %}{% if current_filters.rating %}&rating={{ current_filters.rating }}{% endif %}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function getLocationAndRedirect() {
+    if (navigator.geolocation) {
+        // Show loading state
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Getting Location...';
+        btn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                // Success - redirect to nearby hospitals with coordinates
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const url = `{% url 'hospitals:nearby_hospitals' %}?latitude=${lat}&longitude=${lon}`;
+                window.location.href = url;
+            },
+            function(error) {
+                // Error handling
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                let errorMessage = 'Unable to get your location.';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location access was denied. Please allow location access and try again.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information is unavailable. Please check your device settings.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Location request timed out. Please try again.';
+                        break;
+                }
+                
+                alert(errorMessage);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000 // 5 minutes
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+</script>
+
+{% endblock %} 
